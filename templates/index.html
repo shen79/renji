@@ -1,0 +1,102 @@
+
+<!doctype html>
+<html>
+<head>
+	<title>Network | DataSet</title>
+
+	<style type="text/css">
+		html, body {
+			font: 11pt arial;
+		}
+
+		table.view {
+			width: 100%;
+		}
+
+		table td {
+			vertical-align: top;
+		}
+
+		table table {
+			background-color: #f5f5f5;
+			border: 1px solid #e5e5e5;
+		}
+
+		table table td {
+			vertical-align: middle;
+		}
+
+		input[type=text], pre {
+			border: 1px solid lightgray;
+		}
+
+		pre {
+			margin: 0;
+			padding: 5px;
+			font-size: 10pt;
+		}
+
+		#network {
+			width: 100%;
+			height: 990px;
+			border: 0px;
+		}
+
+
+	</style>
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.contextMenu.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.js"></script>
+	<script type="text/javascript" src="js/jquery.ui.position.min.js"></script>
+	<script type="text/javascript" src="js/vis.min.js"></script>
+	<script type="text/javascript" src="js/r.js"></script>
+	<script type="text/javascript" src="js/md5.js"></script>
+
+	<link rel="stylesheet" href="css/jquery-ui.css">
+	<link rel="stylesheet" href="css/jquery.contextMenu.css" type="text/css" />
+
+</head>
+
+<body onload="draw();">
+
+	<div id="dialog-add" title="Add node" style="display: none">
+		<input id="node-id" type="hidden" value="">
+		<table>
+			<tr>
+				<td></td>
+				<td><label for="node-type">Type</label></td>
+				<td>
+					<select id="node-type">
+						<option value="autodetect">auto detect</option>
+						<option value="as">AS</option>
+						<option value="mac">MAC address</option>
+						<option value="ip">IP address</option>
+						<option value="network">Network</option>
+						<option value="domain">Domain</option>
+						<option value="service">Service</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="node-value">Value</label></td>
+				<td><input id="node-value" type="text" value=""></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>Action</td>
+				<td>
+					<button id="node-add" onclick="addNodeManual();">Add</button>
+					<!-- button id="node-update" onclick="updateNode();">Update</button>
+					<button id="node-remove" onclick="removeNode();">Remove</button-->
+				</td>
+			</tr>
+		</table>
+	</div>
+	<input type="hidden" id="nodes" />
+	<input type="hidden" id="edges" />
+	<div id="network"></div>
+	<div id="eventSpan"></div>
+</body>
+</html>
