@@ -10,6 +10,7 @@ function toJSON(obj) {
 function dbg(x) {
 	console.log(toJSON(x));
 }
+var phy = true
 
 function addNodeManual() {
 	dbg('Function addNodeManual');
@@ -22,7 +23,7 @@ function addNodeManual() {
 		id: getID([nt,nv]),
 		label: nodeLabel,
 		shape: 'box',
-//		physics: false,
+		physics: phy,
 		color: '#DDF',
 		data: {
 			type: nt,
@@ -45,7 +46,7 @@ function addNodes(r) {
 
 //var xid = 0;
 function getID(t) {
-	dbg(t.join('--'));
+	dbg(t.join('--') + ' --> x' + md5(t.join('--')));
 	return 'x' + md5(t.join('--'));
 //	xid++;
 //	return 'x' + xid;
@@ -62,7 +63,7 @@ function addNode(rData) {
 			id: dstID,
 			label: dstLabel,
 			color: '#FDD',
-//			physics: false,
+			physics: phy,
 			shape: 'box',
 			data: {
 				type: rData.response.type,
@@ -80,8 +81,8 @@ function addEdge(eFrom, eTo, eLabel) {
 	edges.add({
 		id: getID([eFrom,eTo]),
 		label: eLabel,
-		smooth: false,
-		length: 400,
+		smooth: true,
+//		length: 400,
 		from: eFrom,
 		to: eTo
 	});
@@ -132,11 +133,18 @@ function draw() {
 		edges: edges
 	};
 	var options = {
-//		layout: {
+		physics: {
+			solver: 'repulsion'
+		},
+		layout: {
+			improvedLayout: true,
 //			hierarchical: {
-//				direction: 'UD'
+//				direction: 'UD',
+//				levelSeparation: 200,
+//				nodeSpacing: 100,
+//				sortMethod: 'directed'
 //			}
-//		}
+		}
 	};
 	network = new vis.Network(container, data, options);
 
@@ -162,13 +170,16 @@ function draw() {
 			"whois": {name: "Get Whois record"}
 		},
 		asn: {
-			"whois": {name: "Get Whois record"}
 		},
 		domain: {
 			"dns": {name: "DNS"},
+ 			"whois": {name: "Get Whois record"}
+		},
+		cidr: {
+			"ipcalc": {name: "IPcalc"},
+			"ping": {name: "Ping all hosts in range"}
 		},
 		service: {
-			"dns-ptr": {name: "DNS-PTR"},
 		},
 		
 	};
@@ -208,7 +219,7 @@ function rCall(rCallProc, nData) {
 	console.table({nData});
 	
 	$.ajax({
-		url: '/api/' + rCallProc + '/' + nData.type + '/' + nData.value,
+		url: '/api/' + rCallProc + '/' + nData.type + '/' + nData.value.replace('/','%252f'),
 		type: 'GET',
 //		data: nData,
 		success: function(rData){
