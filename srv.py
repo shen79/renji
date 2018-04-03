@@ -92,9 +92,26 @@ class Methods():
 						}
 					});
 		return ret
-
+	def ip6_dns(self, val):
+		"""Get PTR record for this IP6 address"""
+		from dns import resolver
+		from dns import reversename
+		#
+		ret = [];
+		src = {'method': 'dns', 'type': 'ip', 'value': val}
+		#
+		addr = reversename.from_address(val)
+		dst = {
+			'method': 'dns/ptr',
+			'type': 'domain',
+			'value': str(resolver.query(addr, "PTR")[0])
+		}
+		ret.append({'request': src, 'response': dst });
+		
+		return ret
+		
 	def ip_dns(self, val):
-		"""Get PTR recor for this IP"""
+		"""Get PTR record for this IP4 address"""
 		from dns import resolver
 		from dns import reversename
 		#
@@ -231,6 +248,8 @@ class ApiTest(Resource, Methods):
 		if ctype == 'ip':
 			if cmethod == 'whois':		ret = self.ip_whois(cvalue)
 			elif cmethod == 'dns':		ret = self.ip_dns(cvalue)
+		elif ctype == 'ip':
+			if cmethod == 'dns':		ret = self.ip6_dns(cvalue)
 		elif ctype == 'domain':
 			if cmethod == 'dns':		ret = self.domain_dns(cvalue)
 			elif cmethod == 'whois':	ret = self.domain_whois(cvalue)

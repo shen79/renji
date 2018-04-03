@@ -87,16 +87,20 @@ function addEdge(eFrom, eTo, eLabel) {
 		to: eTo
 	});
 }
+
+function removeNode(rData) {
+	dbg({'Function removeNode': [rData]});
+	nodes.remove({id: getID([rData.type, rData.value])});
+}
+
+
+
 /*
 function updateNode() {
 	nodes.update({
 		id: document.getElementById('node-id').value,
 		label: document.getElementById('node-label').value
 	});
-}
-
-function removeNode() {
-	nodes.remove({id: document.getElementById('node-id').value});
 }
 
 function updateEdge() {
@@ -164,30 +168,49 @@ function draw() {
 	var contextItems = {
 		nul: {
 			"add-node": {name: "add node"},
+			"_remove": {name: "remove this node"},
 		},
 		ip: {
 			"dns": {name: "Get DNS PTR record (DNS)"},
-			"whois": {name: "Get Whois record"}
+			"whois": {name: "Get Whois record"},
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
+		},
+		ip6: {
+			"dns": {name: "Get DNS PTR record (DNS)"},
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
 		},
 		asn: {
 		},
+		network: {
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
+		},
+		netmask: {
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
+		},
 		domain: {
 			"dns": {name: "DNS"},
- 			"whois": {name: "Get Whois record"}
+ 			"whois": {name: "Get Whois record"},
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
 		},
 		cidr: {
 			"ipcalc": {name: "IPcalc"},
-			"ping": {name: "Ping all hosts in range"}
+			"ping": {name: "Ping all hosts in range"},
+			"_copy": {name: "copy this value"},
+			"_remove": {name: "remove this node"},
 		},
 		service: {
 		},
 		
 	};
-	
-	
+
+
 	var contextItem = 'nul';
 	var nodeData;
-	
 	$.contextMenu({
 		selector: '#network',
 		build: function($trigger, e) {
@@ -198,6 +221,18 @@ function draw() {
 					if (key == 'add-node') {
 						console.log("ADD");
 						$( function() { $( "#dialog-add" ).dialog().show(); });
+					}
+					else if  (key == "_copy") {
+						console.log(key);
+						ta = document.createElement('textarea');
+						ta.value = nodeData.value;
+						document.body.appendChild(ta);
+						ta.select();
+						document.execCommand('copy');
+						document.body.removeChild(ta);
+					}
+					else if  (key == "_remove") {
+						removeNode(nodeData);
 					}
 					else {
 						console.log("rCall " + key);
@@ -248,4 +283,19 @@ function rCall(rCallProc, nData) {
 	});
 /**/
 }
+
+
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("myInput");
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("Copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+} 
 
