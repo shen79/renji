@@ -61,6 +61,27 @@
 
 <body onload="draw();">
 
+	<div id="dialog-import-nmap" title="import nmap" style="display: none">
+		<table>
+			<tr>
+				<td>Import name</td>
+				<td><input id="import-name" typr="text" value=""></td>
+			</tr>
+			<tr>
+				<td>nmap xml</td>
+				<td><input id="nmap-xml" type="file"></td>
+			</tr>
+			<tr>
+				<td>Action</td>
+				<td>
+					<button id="import-xml" onclick="uploadXML();">Import</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+
+
 	<div id="dialog-add" title="Add node" style="display: none">
 		<input id="node-id" type="hidden" value="">
 		<table>
@@ -70,7 +91,7 @@
 				<td>
 					<select id="node-type">
 						<option value="autodetect">auto detect</option>
-						<option value="as">AS</option>
+						<option value="asn">ASN</option>
 						<option value="mac">MAC address</option>
 						<option value="ip">IP address</option>
 						<option value="cidr">CIDR</option>
@@ -95,6 +116,7 @@
 			</tr>
 		</table>
 	</div>
+
 	<input type="hidden" id="nodes" />
 	<input type="hidden" id="edges" />
 	<div id="network"></div>

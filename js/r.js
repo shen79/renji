@@ -1,4 +1,6 @@
 var nodes, edges, network;
+var phy = true
+
 // http://visjs.org/docs/network/
 
 
@@ -10,7 +12,6 @@ function toJSON(obj) {
 function dbg(x) {
 	console.log(toJSON(x));
 }
-var phy = true
 
 function addNodeManual() {
 	dbg('Function addNodeManual');
@@ -44,14 +45,11 @@ function addNodes(r) {
 	}
 }
 
-//var xid = 0;
 function getID(t) {
 	dbg(t.join('--') + ' --> x' + md5(t.join('--')));
 	return 'x' + md5(t.join('--'));
-//	xid++;
-//	return 'x' + xid;
 }
-//function addNode(nodeType, nodeValue) {
+
 function addNode(rData) {
 	dbg({'Function addNode': rData});
 	srcID = getID([rData.request.type,rData.request.value])
@@ -119,13 +117,13 @@ function draw() {
 	   // create an array with nodes
 	nodes = new vis.DataSet();
 	edges = new vis.DataSet();
-
 	nodes.on('*', function () {
 		document.getElementById('nodes').value = JSON.stringify(nodes.get(), null, 4);
 	});
 	edges.on('*', function () {
 		document.getElementById('edges').value = JSON.stringify(edges.get(), null, 4);
 	});
+
 /*
 	edges.add([
 		{id: '4', from: '2', to: '5'}
@@ -160,12 +158,134 @@ function draw() {
 			var nodeID = clickedNodes[0].id;
 			var nodeType = clickedNodes[0].data.type;
 			nodeData = clickedNodes[0].data;
-			contextItem = nodeType;
+			document.contextItem = nodeType;
 		} else {
-			contextItem = 'nul';
+			document.contextItem = 'nul';
 		}
 	});
-	var contextItems = {
+	load_context();
+
+	//var contextItems = {};
+	//contextItems = JSON.parse(rData);
+	//	var contextItems = {};
+}
+
+function load_context() {
+	console.log('load_context');
+	$.ajax({
+		url: '/api/transformations/-/-',
+		type: 'GET',
+		success: function(rData) {
+			console.log('------');
+			dbg({'AAAAAAAAAA': rData});
+			document.contextItems = rData;
+/**/
+			document.contextItem = "nul";
+//			nodeData;
+//			dbg(document.contextItems)
+
+			$.contextMenu({
+				selector: '#network',
+				build: function($trigger, e) {
+					console.log("CI: ", document.contextItem);
+					if (document.contextItem != 'nul') {
+						if (document.contextItems[document.contextItem] == null)
+							document.contextItems[document.contextItem] = {};
+						document.contextItems[document.contextItem]['_copy'] = {'name': 'copy'};
+						document.contextItems[document.contextItem]['_remove'] = {'name': 'remove'};
+					}
+					return {
+						callback: function(key, options) {
+							console.log("clicked: " + key);
+							if (key == 'add-node') {
+								console.log("add node");
+								$( function() { $( "#dialog-add" ).dialog().show(); });
+							}
+							else if (key == "import-nmap") {
+								console.log("import nmap");
+								$( function() { $( "#dialog-import-nmap" ).dialog().show(); });
+							}
+							else if (key == "_copy") {
+								console.log(key);
+								ta = document.createElement('textarea');
+								ta.value = nodeData.value;
+								document.body.appendChild(ta);
+								ta.select();
+								document.execCommand('copy');
+								document.body.removeChild(ta);
+							}
+							else if  (key == "_remove") {
+								removeNode(nodeData);
+							}
+							else {
+								console.log("rCall " + key);
+								rCall(key, nodeData);
+							}
+						},
+						items: document.contextItems[document.contextItem]
+//						items: function() {
+//							r = document.contextItems[document.contextItem];
+//							r['_copy'] = {'name': 'copy'};
+//							r['_remove'] = {'name': 'remove'};
+//							return r;
+//						}
+					}
+				}
+			});
+
+			$('.contextmenu').on('click', function(e){
+				console.log('clicked', this);
+			});
+		},
+		error: function(rData) {
+			alert('woops!'); //or whatever
+		}
+	});
+
+
+
+
+}
+
+function rCall(rCallProc, nData) {
+//	console.log(rCallProc);
+//	console.table({nData});
+	$.ajax({
+		url: '/api/' + rCallProc + '/' + nData.type + '/' + nData.value.replace('/','%252f'),
+		type: 'GET',
+//		data: nData,
+		success: function(rData){
+			console.log(rData);
+			addNodes(rData);
+		},
+		error: function(rData) {
+			alert('woops!'); //or whatever
+		}
+	});
+
+	
+/*
+	var jqxhr = $.getJSON(rCallProc, function(rData) {
+		console.log( "success", rData );
+		addNode(rCallProc, nData, rData);
+	})
+	.done(function() {
+		console.log( "second success" );
+	})
+	.fail(function(e) {
+		console.log( "error", e );
+	})
+	.always(function() {
+		console.log( "complete" );
+	});
+/**/
+}
+
+
+
+
+
+/*
 		nul: {
 			"add-node": {name: "add node"},
 			"_remove": {name: "remove this node"},
@@ -207,95 +327,4 @@ function draw() {
 		},
 		
 	};
-
-
-	var contextItem = 'nul';
-	var nodeData;
-	$.contextMenu({
-		selector: '#network',
-		build: function($trigger, e) {
-            return {
-				callback: function(key, options) {
-//					console.log("CI: ", contextitem);
-					console.log("clicked: " + key);
-					if (key == 'add-node') {
-						console.log("ADD");
-						$( function() { $( "#dialog-add" ).dialog().show(); });
-					}
-					else if  (key == "_copy") {
-						console.log(key);
-						ta = document.createElement('textarea');
-						ta.value = nodeData.value;
-						document.body.appendChild(ta);
-						ta.select();
-						document.execCommand('copy');
-						document.body.removeChild(ta);
-					}
-					else if  (key == "_remove") {
-						removeNode(nodeData);
-					}
-					else {
-						console.log("rCall " + key);
-						rCall(key, nodeData);
-					}
-				},
-				items: contextItems[contextItem]
-			}
-		}
-	});
-	
-	$('.contextmenu').on('click', function(e){
-		console.log('clicked', this);
-	});
-}
-
-function rCall(rCallProc, nData) {
-	console.log(rCallProc);
-	console.table({nData});
-	
-	$.ajax({
-		url: '/api/' + rCallProc + '/' + nData.type + '/' + nData.value.replace('/','%252f'),
-		type: 'GET',
-//		data: nData,
-		success: function(rData){
-			console.log(rData);
-			addNodes(rData);
-			//addNode(rData);
-		},
-		error: function(rData) {
-			alert('woops!'); //or whatever
-		}
-	});
-	
-/*
-	var jqxhr = $.getJSON(rCallProc, function(rData) {
-		console.log( "success", rData );
-		addNode(rCallProc, nData, rData);
-	})
-	.done(function() {
-		console.log( "second success" );
-	})
-	.fail(function(e) {
-		console.log( "error", e );
-	})
-	.always(function() {
-		console.log( "complete" );
-	});
-/**/
-}
-
-
-function myFunction() {
-  /* Get the text field */
-  var copyText = document.getElementById("myInput");
-
-  /* Select the text field */
-  copyText.select();
-
-  /* Copy the text inside the text field */
-  document.execCommand("Copy");
-
-  /* Alert the copied text */
-  alert("Copied the text: " + copyText.value);
-} 
-
+*/
