@@ -5,9 +5,8 @@ def run(val):
 	from dns import resolver
 	from dns import reversename
 	#
-	ret = [];
+#	ret = [];
 	src = {'method': 'dns', 'type': 'ip', 'value': val}
-	#
 	
 	try:
 		addr = reversename.from_address(val)
@@ -15,10 +14,9 @@ def run(val):
 	except:
 		print 'eh'
 	else:
-		dst = {
+#		ret.append();
+		return [{'request': src, 'response': {
 			'method': 'dns/ptr',
 			'type': 'domain',
 			'value': v
-		}
-		ret.append({'request': src, 'response': dst });
-		return ret
+		}}]
