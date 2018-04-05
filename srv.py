@@ -15,20 +15,6 @@ import mods
 # https://bcb.github.io/jsonrpc/flask
 #rq = json.loads(asd) # json.dumps
 
-
-
-#@methods.add
-#def ping():
-#	return 'pong'
-	
-#@methods.add
-#def ip_2_mac(ip):
-#	rp = []
-#	ls(scapy)
-#	mac = scapy.scapy.getmacbyip(ip)
-#	rp.append({'mac': 'mac'})
-#	return rp
-
 app = Flask(__name__)
 app.jinja_env.cache = {}
 
@@ -54,15 +40,12 @@ class Methods():
 		}
 		for fName in mods._mod_names:
 			fu = mods.mods[fName]
-			src_type, t_method = fName.split('_', 2)
+			src_type, t_method = fName.split('_', 1)
 			if src_type not in ret:
 				ret[src_type] = {}
 			ret[src_type][t_method] =  {'name': t_method};
 		return ret
 
-
-
-	
 class ApiTest(Resource, Methods):
 	def get(self,cmethod,ctype,cvalue):
 		originalRequest = {'method': cmethod, 'type': ctype, 'value': cvalue}
@@ -75,15 +58,9 @@ class ApiTest(Resource, Methods):
 			ret = m.run(cvalue)
 #		print json.dumps(ret)
 		return ret
-		
 
 api = Api(app)
 api.add_resource(ApiTest, '/api/<string:cmethod>/<string:ctype>/<string:cvalue>')
-
-
-
-# === MAIN =========================================================================================
-
 
 if __name__ == '__main__':
 	app.run()
